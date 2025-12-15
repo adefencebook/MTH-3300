@@ -37,7 +37,7 @@ class Store:
         """
         print("The Store has the following items")
         for i in self._inventory:
-            print(i, end=" ")
+            print(f'{i}: {self._inventory[i]._inv}', end=" ")
         print()
         user_input = input("Enter item name or PAY to end your order. ")
         return user_input
@@ -70,7 +70,11 @@ class Store:
             if user_entry != "PAY":
                 try:
                     user_item = self._inventory[user_entry]
-                    quant = int(input(f'How many {user_item._name}s are you buying? '))
+                    quant = int(input(f'How many {user_item._name}s are you buying? We have {user_item._inv} in stock: '))
+                    #do we have enough of that item
+                    if user_item._inv < quant:
+                        print(f'Sorry we don\'t have enough {user_item._name}\'s')
+                        quant = int(input(f'How many {user_item._name}s are you buying? We have {user_item._inv} in stock: '))
                     #updating sales info
                     store_cost += user_item._cost * quant
                     pre_tax += user_item._sales_price * quant
@@ -86,10 +90,12 @@ class Store:
         #Processing the orders
         tax = 1.08
         total = pre_tax * tax
+        store_profit = total - store_cost
         print("We will now calculate your total order!")
         print(f'Your total before tax is ${pre_tax:.2f}')
-        print(f'Your total is ${total:.2f}')
-        print(f'Your order cost {self._name} ${store_cost}')
+        print(f'Your total with tax is ${total:.2f}')
+        print(f'Your order cost {self._name} ${store_cost:.2f}')
+        print(f'{self._name} made of profit of #{store_profit:.2f}')
 
     def sale(self, percent):
         """
@@ -99,8 +105,11 @@ class Store:
         :param percent: how much the item is on sale
         """
         for i in self._inventory:
-            new_price = self._inventory[i]._sales_price * (1-percent)
+            item = self._inventory[i]
+            print(f'Old price of {item._name} was {item._sales_price}')
+            new_price = item._sales_price * (1-percent)
             self._inventory[i]._change_sales_price(new_price)
+            print(f'New price of {item._name} is {item._sales_price}')
 
 class Item:
     def __init__(self, name, cost, sales_price, inv):
